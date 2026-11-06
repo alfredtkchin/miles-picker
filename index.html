@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d5c63">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Miles Picker">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>html{color-scheme:light dark}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+</head><body>
+<title>KrisFlyer Card Picker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --surface2:#e9eeed; --fg:#14201f; --muted:#5a6967; --line:#d3dbd9;
+  --accent:#0d5c63; --accent-fg:#ffffff; --accent-soft:#d7ebec; --warn:#8a5a00; --warn-soft:#fbefd0;
+  --bad:#a3361f; --bad-soft:#f8e0da; --good:#17663a; --good-soft:#d9efe1;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1716; --surface:#172221; --surface2:#1f2e2d; --fg:#e6efed; --muted:#9fb1ae; --line:#2c3d3b;
+  --accent:#5cc3cb; --accent-fg:#06191b; --accent-soft:#16393c; --warn:#f0c15c; --warn-soft:#3a2f12;
+  --bad:#f0907c; --bad-soft:#3b1d17; --good:#7fd6a0; --good-soft:#143323; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1716; --surface:#172221; --surface2:#1f2e2d; --fg:#e6efed; --muted:#9fb1ae; --line:#2c3d3b;
+  --accent:#5cc3cb; --accent-fg:#06191b; --accent-soft:#16393c; --warn:#f0c15c; --warn-soft:#3a2f12;
+  --bad:#f0907c; --bad-soft:#3b1d17; --good:#7fd6a0; --good-soft:#143323; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.45;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:860px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px}
+h1{font-size:22px;margin:0;font-weight:600;letter-spacing:-.01em}
+.asof{font-family:var(--mono);font-size:12px;color:var(--muted)}
+nav{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:10px;overflow-x:auto}
+nav button{flex:1 0 auto;border:0;background:transparent;color:var(--muted);font:500 14px var(--sans);padding:8px 12px;border-radius:7px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px;min-width:0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label{display:grid;gap:4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;min-width:0}
+input,select,textarea{font:400 15px var(--sans);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:13px;color:var(--fg)}
+.check input{width:auto;margin-top:3px}
+.rank{display:grid;gap:8px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:6px;background:var(--surface);min-width:0}
+.card.top{border-color:var(--accent);background:var(--accent-soft)}
+.card .hd{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.card .nm{font-weight:600}
+.card .mi{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
+.bar{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.sub{font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font:500 11px var(--mono);padding:2px 6px;border-radius:5px;margin-right:4px;text-transform:uppercase;letter-spacing:.04em}
+.t-ok{background:var(--good-soft);color:var(--good)} .t-warn{background:var(--warn-soft);color:var(--warn)} .t-bad{background:var(--bad-soft);color:var(--bad)} .t-n{background:var(--surface2);color:var(--muted)}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.opt{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:10px;min-width:0}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.res div{background:var(--surface2);border-radius:8px;padding:10px;min-width:0}
+.res b{display:block;font:500 20px var(--mono);font-variant-numeric:tabular-nums}
+.res span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.verdict{padding:12px;border-radius:10px;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button,.btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);font:500 13px var(--sans);padding:6px 10px;border-radius:7px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.chips button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+h2{font-size:15px;margin:0;font-weight:600}
+.ovr{display:grid;grid-template-columns:1fr 100px auto;gap:8px;align-items:end}
+.foot{font-size:12px;color:var(--muted)}
+.hide{display:none}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>KrisFlyer card picker</h1>
+    <span class="asof">Rates as of 6 Nov 2026 · miles per S$1, KrisFlyer-adjusted</span>
+  </header>
+  <nav role="tablist" id="tabs"></nav>
+  <div id="view"></div>
+  <p class="foot">Rates are researched, not live. Always confirm on the bank or merchant page before large spends. To refresh promos, ask Claude to update this page — your added cards stay saved in this browser.</p>
+</div>
+
+<script>
+const TODAY = new Date();
+const ASOF = "6 Nov 2026";
+const CATS = [
+  {id:"general",label:"Everyday SGD spend"},
+  {id:"simplygo",label:"Bus / MRT (SimplyGo)"},
+  {id:"taxi",label:"Taxi / ride-hailing"},
+  {id:"dining",label:"Local dining"},
+  {id:"delivery",label:"Food delivery"},
+  {id:"shopee",label:"Online shopping (Shopee etc.)"},
+  {id:"agoda",label:"Agoda hotel"},
+  {id:"expedia",label:"Expedia hotel"},
+  {id:"ota",label:"Airbnb / Trip.com / Booking.com"},
+  {id:"kaligo",label:"Kaligo"},
+  {id:"direct",label:"Hotel / airline booked direct"},
+  {id:"sia",label:"SIA / Scoot / KrisShop"},
+  {id:"overseas",label:"Overseas (foreign currency)"},
+  {id:"telco",label:"Telco / Simba bills"},
+  {id:"cardup",label:"CardUp (school fees, tax, rent)"},
+  {id:"edu",label:"School fees paid directly"},
+  {id:"hospital",label:"Hospital bills"},
+  {id:"petrol",label:"Petrol"}
+];
+const KF_NOTE = "Needs S$1,000 on SIA / Scoot / KrisShop in the membership year (Kris+ and Pelago don't count); otherwise only 1.2 mpd.";
+const CARDS = [
+ {id:"hsbcp",name:"HSBC Premier Mastercard",conv:"30,000 pts = 10,000 miles, free transfer",lounge:"Unlimited Priority Pass",def:{sgd:1.4,fcy:2.3},
+  r:{cardup:{m:0,note:"HSBC cards earn nothing on CardUp."},hospital:{m:0,note:"MCC 8062 excluded."}}},
+ {id:"hsbcr",name:"HSBC Revolution Visa",conv:"Same pool as HSBC points",lounge:"None",def:{sgd:0.4,fcy:0.4},
+  r:{
+   dining:{m:3.33,cap:1000,note:"Online / contactless whitelist only. Cap S$1,000/mo combined (S$1,200 with EGA)."},
+   delivery:{m:3.33,cap:1000,note:"Food delivery apps may code as fast food (5814), which is excluded — check first."},
+   shopee:{m:3.33,cap:1000,note:"Online MCCs on whitelist. Cap S$1,000/mo combined."},
+   taxi:{m:3.33,cap:1000,note:"Taxi MCC 4121 only. Grab wallet top-ups earn nothing."},
+   direct:{m:3.33,cap:1000,note:"Direct bookings only."},
+   agoda:{m:0.4,note:"OTAs (MCC 4722) are excluded from the bonus."},
+   expedia:{m:0.4,note:"OTAs (MCC 4722) are excluded from the bonus."},
+   ota:{m:0.4,note:"OTAs (MCC 4722) are excluded from the bonus."},
+   kaligo:{m:0.4,note:"OTA-type merchant, bonus excluded."},
+   simplygo:{m:0.4,note:"SimplyGo (MCC 4111) excluded from the bonus."},
+   cardup:{m:0},hospital:{m:0}}},
+ {id:"prvi",name:"UOB PRVI Miles Visa",conv:"UNI$1 = 2 miles, S$27 per transfer (5,000 UNI$ blocks)",lounge:"4 visits / year",def:{sgd:1.4,fcy:2.4},
+  r:{
+   agoda:{m:5,verify:true,note:"Only via agoda.com/prvimiles, prepaid, card in your own name. Advertised 'up to 8 mpd'; your S$196.40 quote showed about 5. Last reported end date 31 May 2026 — confirm it still shows on the page.",fb:1.4},
+   expedia:{m:5,exp:"2027-03-31",fb:1.4,note:"Via the PRVI Expedia link, prepaid, own name. Advertised up to 8 mpd; confirm the rate at checkout. Valid to 31 Mar 2027."},
+   cardup:{m:1.4,note:"The route for school fees: Visa version. About 2.3–2.6% CardUp fee, which also earns miles; roughly 1.6–1.75¢ per mile."},
+   hospital:{m:0}}},
+ {id:"uobkf",name:"UOB KrisFlyer Mastercard",conv:"Direct KrisFlyer credit, no fee",lounge:"None",def:{sgd:1.2,fcy:1.2},
+  r:{
+   sia:{m:3,note:"3 mpd, uncapped (SIA, Scoot, KrisShop, Kris+, Pelago)."},
+   dining:{m:2.4,kf:true,fb:1.2,note:KF_NOTE},
+   delivery:{m:2.4,kf:true,fb:1.2,note:KF_NOTE},
+   shopee:{m:2.4,kf:true,fb:1.2,note:KF_NOTE},
+   agoda:{m:2.4,kf:true,fb:1.2,note:"No link needed. "+KF_NOTE},
+   expedia:{m:2.4,kf:true,fb:1.2,note:"No link needed. "+KF_NOTE},
+   ota:{m:2.4,kf:true,fb:1.2,note:"Airbnb, Booking.com, Trip.com count as online travel. "+KF_NOTE},
+   kaligo:{m:2.4,kf:true,fb:1.2,note:KF_NOTE},
+   simplygo:{m:2.4,kf:true,fb:1.2,note:"Bus/MRT counts as transport. "+KF_NOTE},
+   taxi:{m:2.4,kf:true,fb:1.2,note:KF_NOTE},
+   hospital:{m:0}}},
+ {id:"ocbc",name:"OCBC 90°N Visa",conv:"1:1, 10,000-mile blocks, about S$25",lounge:"DragonPass (not Priority Pass)",def:{sgd:1.3,fcy:2.1},
+  r:{
+   agoda:{m:1.3,note:"Agoda promo ended (bookings by 10 Oct 2026); agoda.com/90n not renewed."},
+   hospital:{m:0,note:"Direct hospital bills don't earn."}}},
+ {id:"mbb",name:"Maybank World Mastercard",conv:"25,000 TP = 10,000 miles, S$27.25",lounge:"None",def:{sgd:0.4,fcy:2.8},
+  r:{
+   overseas:{m:2.8,note:"2.8 mpd with S$800+ FCY spend per calendar month, 3.2 with S$4,000+ (whole amount, by posting date). 3.25% FX fee."},
+   petrol:{m:4,note:"4 mpd on petrol and a few listed merchants."},
+   hospital:{m:0.4,note:"One of few cards that earns on hospital bills (base)."},
+   edu:{m:0.4,note:"Earns only 0.4 mpd, and NUSFastPay adds a 1% fee, so it costs more than the miles are worth. Use CardUp instead."}}},
+ {id:"citi",name:"Citi PremierMiles Mastercard",conv:"1:1, 10,000 blocks, S$27.25; Citi Miles never expire",lounge:"2 visits / year (principal)",def:{sgd:1.2,fcy:2.2},
+  r:{
+   agoda:{m:6.2,exp:"2026-12-31",fb:1.2,note:"Via agoda.com/bonusmiles. Book by 31 Dec 2026, stay by 30 Apr 2027. 7.2 mpd on foreign-currency billing."},
+   kaligo:{m:10,exp:"2026-12-31",fb:1.2,note:"10 mpd, uncapped, to 31 Dec 2026."},
+   hospital:{m:0}}},
+ {id:"dbs",name:"DBS Altitude Visa (supp.)",conv:"5,000 pts = 10,000 miles, S$27.25",lounge:"None (supplementary card)",def:{sgd:1.3,fcy:2.2},
+  r:{hospital:{m:0}}}
+];
+const MILE_PRESETS = [["Economy floor",1.6],["Benchmark",1.7],["Osaka → BKK J",2.07],["Colombo → SIN J",2.43],["Maldives Y",2.96],["BKK → Japan J",3.57]];
+
+let state = {tab:"best",cat:"dining",amt:100,mbbMonth:0,kf:true,custom:[],mile:1.7,
+  cmp:{cat:"agoda",a:"uobkf",b:"prvi",pa:180,pb:196.4,ma:null,mb:null,fee:0}};
+try{const s=JSON.parse(localStorage.getItem("kfpicker")||"null"); if(s){state.custom=s.custom||[];state.kf=!!s.kf;state.mile=s.mile||1.7;state.cat=s.cat||state.cat;}}catch(e){}
+function save(){try{localStorage.setItem("kfpicker",JSON.stringify({custom:state.custom,kf:state.kf,mile:state.mile,cat:state.cat}))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const all=()=>CARDS.concat(state.custom);
+const byId=id=>all().find(c=>c.id===id)||CARDS[0];
+const f2=n=>Number(n).toLocaleString("en-SG",{maximumFractionDigits:2,minimumFractionDigits:2});
+const f0=n=>Math.round(n).toLocaleString("en-SG");
+
+function rate(card,cat,amt){
+  const base = cat==="overseas" ? card.def.fcy : card.def.sgd;
+  if(card.id==="mbb" && cat==="overseas"){
+    const tot=(state.mbbMonth||0)+(amt||0);
+    const m = tot>=4000?3.2 : tot>=800?2.8 : 0.4;
+    return {m,tags:[["month total S$"+f0(tot),"t-n"],[m===3.2?"S$4,000 tier":m===2.8?"S$800 tier":"below S$800",m>=2.8?"t-ok":"t-warn"]],cap:null,fb:0.4,
+      note:"Tier is set by your total Maybank spend in the calendar month (posting date), applied to the whole amount: 2.8 mpd from S$800, 3.2 mpd from S$4,000. Extra points credit around the 7th of next month. 3.25% FX fee."};
+  }
+  const e = card.r[cat];
+  if(!e && cat==="edu") return {m:0,tags:[["no miles","t-bad"]],note:"Education payments (MCC 8220) are excluded from miles on this card. Pay through CardUp instead.",cap:null,fb:0};
+  if(!e) return {m:base,tags:[],note:"",cap:null,fb:base};
+  let m=e.m, tags=[], fb = e.fb!=null?e.fb:base;
+  if(e.exp && TODAY>new Date(e.exp+"T23:59:59+08:00")){m=fb;tags.push(["expired","t-bad"]);}
+  else if(e.exp){tags.push(["to "+new Date(e.exp).toLocaleDateString("en-SG",{day:"numeric",month:"short",year:"numeric"}),"t-warn"]);}
+  if(e.kf && !state.kf){m=fb;tags.push(["S$1k SIA not cleared","t-warn"]);}
+  else if(e.kf){tags.push(["S$1k SIA cleared","t-ok"]);}
+  if(e.verify) tags.push(["verify","t-warn"]);
+  if(m===0) tags.push(["no miles","t-bad"]);
+  return {m,tags,note:e.note||"",cap:e.cap||null,fb};
+}
+function miles(card,cat,amt){
+  const r=rate(card,cat,amt); let mi=amt*r.m;
+  if(r.cap && amt>r.cap) mi=r.cap*r.m+(amt-r.cap)*(card.def.sgd);
+  return {r,mi};
+}
+
+function tabs(){
+  const t=[["best","Best card"],["compare","Spend more vs less"],["promos","Promos"],["mine","Add a card"]];
+  document.getElementById("tabs").innerHTML=t.map(([k,l])=>`<button role="tab" data-t="${k}" aria-selected="${state.tab===k}">${l}</button>`).join("");
+}
+function catOpts(sel){return CATS.map(c=>`<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.label)}</option>`).join("");}
+function cardOpts(sel){return all().map(c=>`<option value="${esc(c.id)}" ${c.id===sel?"selected":""}>${esc(c.name)}</option>`).join("");}
+
+function vBest(){
+  const rows=all().map(c=>({c,...miles(c,state.cat,state.amt)})).sort((a,b)=>b.mi-a.mi);
+  const max=Math.max(...rows.map(r=>r.mi),1);
+  return `<div class="panel">
+   <div class="row">
+    <label>Purchase type<select id="cat">${catOpts(state.cat)}</select></label>
+    <label>Amount (S$)<input id="amt" type="number" min="0" step="any" value="${state.amt}"></label>
+    ${state.cat==="overseas"?`<label>Already spent on Maybank this month (S$)<input id="mbbm" type="number" min="0" step="any" value="${state.mbbMonth}"></label>`:""}
+   </div>
+   <label class="check"><input type="checkbox" id="kf" ${state.kf?"checked":""}><span>I have cleared S$1,000 on SIA / Scoot / KrisShop this membership year (unlocks UOB KrisFlyer 2.4 mpd)</span></label>
+   <div class="rank">${rows.map((r,i)=>`
+    <div class="card ${i===0&&r.mi>0?"top":""}">
+     <div class="hd"><span class="nm">${i+1}. ${esc(r.c.name)}</span><span class="mi">${f2(r.r.m)} mpd · ${f0(r.mi)} miles</span></div>
+     <div class="bar"><i style="width:${(r.mi/max*100).toFixed(1)}%"></i></div>
+     <div>${r.r.tags.map(t=>`<span class="tag ${t[1]}">${esc(t[0])}</span>`).join("")}${r.r.cap?`<span class="tag t-n">cap S$${f0(r.r.cap)}/mo</span>`:""}</div>
+     ${r.r.note?`<div class="sub">${esc(r.r.note)}</div>`:""}
+     <div class="sub">Transfer: ${esc(r.c.conv)} · Lounge: ${esc(r.c.lounge)}</div>
+    </div>`).join("")}</div></div>`;
+}
+
+function cmpRates(){
+  const c=state.cmp, A=byId(c.a), B=byId(c.b);
+  if(c.ma==null) c.ma=rate(A,c.cat,c.pa).m;
+  if(c.mb==null) c.mb=rate(B,c.cat,c.pb).m;
+}
+function vCompare(){
+  cmpRates(); const c=state.cmp, A=byId(c.a), B=byId(c.b);
+  const rA=rate(A,c.cat,c.pa), rB=rate(B,c.cat,c.pb);
+  return `<div class="panel">
+   <p class="sub" style="margin:0">Is paying a higher price for a higher-earning option worth it? Example: Agoda S$180 on the normal card versus S$196.40 on the PRVI link.</p>
+   <label>Purchase type<select id="ccat">${catOpts(c.cat)}</select></label>
+   <div class="big">
+    <div class="opt"><h2>Option A — pay less</h2>
+     <label>Card<select id="ca">${cardOpts(c.a)}</select></label>
+     <label>Price (S$)<input id="pa" type="number" step="any" min="0" value="${c.pa}"></label>
+     <label>Miles per S$1<input id="ma" type="number" step="any" min="0" value="${c.ma}"></label>
+     <div class="sub">${rA.tags.map(t=>`<span class="tag ${t[1]}">${esc(t[0])}</span>`).join("")}</div>
+    </div>
+    <div class="opt"><h2>Option B — pay more</h2>
+     <label>Card<select id="cb">${cardOpts(c.b)}</select></label>
+     <label>Price (S$)<input id="pb" type="number" step="any" min="0" value="${c.pb}"></label>
+     <label>Miles per S$1<input id="mb" type="number" step="any" min="0" value="${c.mb}"></label>
+     <div class="sub">${rB.tags.map(t=>`<span class="tag ${t[1]}">${esc(t[0])}</span>`).join("")}</div>
+    </div>
+   </div>
+   <div class="row">
+    <label>My value per mile (cents)<input id="mile" type="number" step="0.01" min="0" value="${state.mile}"></label>
+    <label>Extra cost for B (fees, e.g. S$27 transfer; S$)<input id="fee" type="number" step="any" min="0" value="${c.fee}"></label>
+   </div>
+   <div class="chips" id="presets">${MILE_PRESETS.map(([l,v])=>`<button data-v="${v}" aria-pressed="${state.mile===v}">${esc(l)} ${v}¢</button>`).join("")}</div>
+   <label class="check"><input type="checkbox" id="kf2" ${state.kf?"checked":""}><span>S$1,000 SIA spend cleared (affects UOB KrisFlyer 2.4 mpd)</span></label>
+   <div id="out"></div></div>`;
+}
+function calcCompare(){
+  const c=state.cmp, v=state.mile/100;
+  const miA=c.pa*c.ma, miB=c.pb*c.mb, extraMi=miB-miA, extraCost=c.pb-c.pa+(+c.fee||0);
+  const cpm = extraMi>0 ? extraCost/extraMi*100 : null;
+  const netA=c.pa-miA*v, netB=c.pb+(+c.fee||0)-miB*v;
+  let msg,cls;
+  if(extraMi<=0){msg="Option B earns no extra miles — pick A.";cls="t-bad";}
+  else if(extraCost<=0){msg="B costs no more and earns more miles — pick B.";cls="t-ok";}
+  else if(cpm<=state.mile){msg=`Worth it: you pay ${f2(cpm)}¢ per extra mile, below your ${state.mile}¢ value. Net effective cost is lower on B.`;cls="t-ok";}
+  else {msg=`Not worth it at ${state.mile}¢: you pay ${f2(cpm)}¢ per extra mile. B only wins if you value miles above ${f2(cpm)}¢ (your best redemptions reach about 3.57¢).`;cls="t-bad";}
+  document.getElementById("out").innerHTML=`
+   <div class="res">
+    <div><span>Miles A</span><b>${f0(miA)}</b></div>
+    <div><span>Miles B</span><b>${f0(miB)}</b></div>
+    <div><span>Extra miles</span><b>${f0(extraMi)}</b></div>
+    <div><span>Extra cost</span><b>S$${f2(extraCost)}</b></div>
+    <div><span>Cost / extra mile</span><b>${cpm==null?"n/a":f2(cpm)+"¢"}</b></div>
+    <div><span>Break-even value</span><b>${cpm==null?"n/a":f2(cpm)+"¢"}</b></div>
+   </div>
+   <div class="res">
+    <div><span>A net cost after miles</span><b>S$${f2(netA)}</b></div>
+    <div><span>B net cost after miles</span><b>S$${f2(netB)}</b></div>
+    <div><span>Cheaper overall</span><b>${netA<=netB?"A":"B"}</b></div>
+   </div>
+   <div class="verdict ${cls}">${esc(msg)}</div>`;
+}
+
+function vPromos(){
+  const list=[];
+  all().forEach(c=>Object.entries(c.r).forEach(([k,e])=>{
+    if(e.exp||e.verify||e.kf||(e.m>c.def.sgd+0.3 && k!=="overseas")){
+      const rr=rate(c,k); const cat=CATS.find(x=>x.id===k);
+      list.push({card:c.name,cat:cat?cat.label:k,rr,e});
+    }
+  }));
+  list.sort((a,b)=>(a.e.exp||"9999").localeCompare(b.e.exp||"9999"));
+  return `<div class="panel"><h2>Promos and conditions</h2>
+   <p class="sub" style="margin:0">Dated ones first. "Expired" rows fall back to the base rate. Other merchant promos (hotel links, Kaligo) change often — verify before you book.</p>
+   <div class="scroll"><table><thead><tr><th>Card</th><th>Where</th><th>Rate now</th><th>Status</th></tr></thead><tbody>
+   ${list.map(x=>`<tr><td>${esc(x.card)}</td><td>${esc(x.cat)}</td><td class="n">${f2(x.rr.m)}</td><td>${x.rr.tags.map(t=>`<span class="tag ${t[1]}">${esc(t[0])}</span>`).join("")}<div class="sub">${esc(x.rr.note)}</div></td></tr>`).join("")}
+   </tbody></table></div>
+   <p class="foot">Last researched ${ASOF}. Static page: it can't check banks live. Ask Claude to "refresh the card picker promos" and it will republish with new rates.</p></div>`;
+}
+
+function vMine(){
+  const draft=state.draft||(state.draft={name:"",sgd:1.2,fcy:2.0,conv:"",lounge:"",ovr:[]});
+  return `<div class="panel"><h2>Add another card</h2>
+   <div class="row">
+    <label>Card name<input id="n_name" value="${esc(draft.name)}" placeholder="e.g. Standard Chartered Journey"></label>
+    <label>Local rate (mpd)<input id="n_sgd" type="number" step="0.1" min="0" value="${draft.sgd}"></label>
+    <label>Overseas rate (mpd)<input id="n_fcy" type="number" step="0.1" min="0" value="${draft.fcy}"></label>
+   </div>
+   <div class="row">
+    <label>Transfer to KrisFlyer<input id="n_conv" value="${esc(draft.conv)}" placeholder="ratio, fee"></label>
+    <label>Lounge access<input id="n_lounge" value="${esc(draft.lounge)}" placeholder="e.g. 2 visits / year"></label>
+   </div>
+   <h2>Category rates (optional)</h2>
+   <div id="ovrs">${draft.ovr.map((o,i)=>`<div class="ovr"><label>Category<select data-oc="${i}">${catOpts(o.cat)}</select></label><label>mpd<input data-om="${i}" type="number" step="0.1" min="0" value="${o.m}"></label><button class="btn" data-rm="${i}">Remove</button></div>`).join("")}</div>
+   <div class="chips"><button class="btn" id="addovr">+ Add category rate</button></div>
+   <div><button class="btn primary" id="savecard">Save card</button></div>
+   <h2>Your added cards</h2>
+   ${state.custom.length?state.custom.map(c=>`<div class="card"><div class="hd"><span class="nm">${esc(c.name)}</span><button class="btn" data-del="${esc(c.id)}">Delete</button></div><div class="sub">${f2(c.def.sgd)} local · ${f2(c.def.fcy)} overseas · ${esc(c.conv||"no transfer info")} · ${esc(c.lounge||"no lounge info")}</div></div>`).join(""):`<p class="sub">None yet. Added cards join every ranking and comparison. Stored in this browser only.</p>`}
+  </div>`;
+}
+
+function render(){
+  tabs();
+  const v=document.getElementById("view");
+  v.innerHTML = state.tab==="best"?vBest():state.tab==="compare"?vCompare():state.tab==="promos"?vPromos():vMine();
+  if(state.tab==="compare") calcCompare();
+}
+function num(x){const n=parseFloat(x);return isFinite(n)&&n>=0?n:0;}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-t]"); if(t){state.tab=t.dataset.t;render();return;}
+  const p=e.target.closest("#presets button"); if(p){state.mile=parseFloat(p.dataset.v);save();render();return;}
+  if(e.target.id==="addovr"){syncDraft();state.draft.ovr.push({cat:"dining",m:2});render();return;}
+  const rm=e.target.closest("[data-rm]"); if(rm){syncDraft();state.draft.ovr.splice(+rm.dataset.rm,1);render();return;}
+  const del=e.target.closest("[data-del]"); if(del){state.custom=state.custom.filter(c=>c.id!==del.dataset.del);save();render();return;}
+  if(e.target.id==="savecard"){
+    syncDraft(); const d=state.draft; if(!d.name.trim()){document.getElementById("n_name").focus();return;}
+    const r={}; d.ovr.forEach(o=>{r[o.cat]={m:o.m}});
+    state.custom.push({id:"c"+Date.now(),name:d.name.trim(),conv:d.conv,lounge:d.lounge,def:{sgd:d.sgd,fcy:d.fcy},r});
+    state.draft=null; save(); render();
+  }
+});
+function syncDraft(){
+  const d=state.draft; if(!d||!document.getElementById("n_name")) return;
+  d.name=n_name.value; d.sgd=num(n_sgd.value); d.fcy=num(n_fcy.value); d.conv=n_conv.value; d.lounge=n_lounge.value;
+  document.querySelectorAll("[data-oc]").forEach(s=>d.ovr[+s.dataset.oc].cat=s.value);
+  document.querySelectorAll("[data-om]").forEach(s=>d.ovr[+s.dataset.om].m=num(s.value));
+}
+document.addEventListener("change",e=>{
+  const id=e.target.id, c=state.cmp;
+  if(id==="cat"){state.cat=e.target.value;save();render();}
+  else if(id==="kf"||id==="kf2"){state.kf=e.target.checked;c.ma=null;c.mb=null;save();render();}
+  else if(id==="ccat"){c.cat=e.target.value;c.ma=null;c.mb=null;render();}
+  else if(id==="ca"){c.a=e.target.value;c.ma=null;render();}
+  else if(id==="cb"){c.b=e.target.value;c.mb=null;render();}
+});
+document.addEventListener("input",e=>{
+  const id=e.target.id, c=state.cmp;
+  if(id==="amt"||id==="mbbm"){if(id==="amt")state.amt=num(e.target.value);else state.mbbMonth=num(e.target.value);const y=window.scrollY;render();const a=document.getElementById(id);a.focus();window.scrollTo(0,y);}
+  else if(["pa","pb","ma","mb","fee"].includes(id)){c[id]=num(e.target.value);
+    if(c.cat==="overseas"){if(id==="pa"&&c.a==="mbb"){c.ma=rate(byId("mbb"),"overseas",c.pa).m;document.getElementById("ma").value=c.ma;}
+      if(id==="pb"&&c.b==="mbb"){c.mb=rate(byId("mbb"),"overseas",c.pb).m;document.getElementById("mb").value=c.mb;}}
+    calcCompare();}
+  else if(id==="mile"){state.mile=num(e.target.value);save();calcCompare();document.querySelectorAll("#presets button").forEach(b=>b.setAttribute("aria-pressed",String(parseFloat(b.dataset.v)===state.mile)));}
+});
+render();
+</script>
+
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+</body></html>
